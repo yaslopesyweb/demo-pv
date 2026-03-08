@@ -38,8 +38,8 @@ const cursosData = [
 
 export function CoursesSection() {
     return (
-        <section className="py-16 bg-gray-50">
-                {/* Div branca com bordas arredondadas */}
+        <section className="py-16 bg-[#E7E7E7]"> {/* Mudado de bg-gray-50 para bg-[#E7E7E7] */}
+            <div className="container mx-auto px-4 max-w-7xl">
                 <div className="bg-white rounded-3xl py-10 px-6 md:px-8 shadow-sm">
                     <h2 className="text-3xl text-center mb-12">
                         Encontre a <span className="font-bold">turma online</span> ideal para o tamanho dos seus sonhos
@@ -57,8 +57,10 @@ export function CoursesSection() {
                                 cor={curso.cor}
                             />
                         ))}
+                        </div>
                     </div>
                 </div>
         </section>
     );
 }
+
