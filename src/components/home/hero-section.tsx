@@ -1,20 +1,96 @@
-import { Ubuntu } from "next/font/google";
-
-const ubuntu = Ubuntu({
-    weight: ['400', '500', '700'],
-    subsets: ["latin"],
-});
+import Image from "next/image";
+import { PromotionCards } from "./promotion-cards";
 
 export function HeroSection() {
     return (
-        <section className="bg-gradient-to-b from-blue-50 to-white py-16">
-            <div className="container mx-auto px-4 max-w-6xl">
-                <h1 className="text-5xl font-bold text-center mb-6">Turmas Online</h1>
-                <p className="text-xl text-gray-600 text-center max-w-4xl mx-auto">
-                    Prepare-se para os principais vestibulares do país com a estrutura pedagógica
-                    e a qualidade reconhecida do curso que é referência e liderança em aprovações.
-                    E o melhor: sem sair de casa.
-                </p>
+        <section className="relative bg-[#E7E7E7] -mt-[120px] pt-[65px] overflow-hidden">
+            {" "}
+            {/* Reduzi ainda mais o padding top de 100px para 65px (35px a menos) */}
+            <div className="container mx-auto px-4 max-w-7xl">
+                <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12 min-h-[500px]">
+                    {" "}
+                    {/* Reduzi a altura mínima */}
+                    {/* Lado esquerdo - Texto e Cards */}
+                    <div className="lg:w-1/2 space-y-1">
+                        {" "}
+                        {/* Reduzi space-y de 4 para 3 */}
+                        <h1 className="text-5xl font-bold text-gray-800 mb-1">Turmas Online</h1>{" "}
+                        {/* Reduzi mb de 2 para 1 */}
+                        <p className="text-lg text-gray-700 leading-relaxed mb-20">
+                            Prepare-se para os principais vestibulares do país com a estrutura pedagógica
+                            e a qualidade reconhecida do curso que é referência e liderança em aprovações.
+                            E o melhor: sem sair de casa.
+                        </p>
+                        {/* Cards de Promoções */}
+                        <div className="grid grid-cols-2 gap-4">
+                            {/* Concurso de Bolsas Card - Laranja */}
+                            <div 
+                                className="rounded-2xl p-5 flex flex-col items-center text-center transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                                style={{ 
+                                    backgroundColor: '#E04816',
+                                    border: 'none'
+                                }}
+                            >
+                                <h3 className="text-lg font-bold mb-2 transition-colors duration-300 group-hover:text-white" style={{ color: '#FDFAF8' }}>
+                                    Concurso de Bolsas
+                                </h3>
+                                <p className="text-sm mb-3" style={{ color: '#FDFAF8' }}>
+                                    Participe da prova e concorra a bolsas de até 100%.
+                                </p>
+                                <button 
+                                    className="font-bold text-sm px-4 py-2 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-md"
+                                    style={{ 
+                                        backgroundColor: '#FDFAF8',
+                                        color: '#E04816'
+                                    }}
+                                >
+                                    SAIBA MAIS →
+                                </button>
+                            </div>
+                            
+                            {/* Bolsa Desempenho Card - Azul */}
+                            <div 
+                                className="rounded-2xl p-5 flex flex-col items-center text-center transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                                style={{ 
+                                    backgroundColor: '#1E5E9B',
+                                    border: 'none'
+                                }}
+                            >
+                                <h3 className="text-lg font-bold mb-2" style={{ color: '#FDFAF8' }}>
+                                    Bolsa Desempenho
+                                </h3>
+                                <p className="text-sm mb-3" style={{ color: '#FDFAF8' }}>
+                                    Envie seu boletim com notas de outros vestibulares e obtenha descontos.
+                                </p>
+                                <button 
+                                    className="font-bold text-sm px-4 py-2 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-md"
+                                    style={{ 
+                                        backgroundColor: '#FDFAF8',
+                                        color: '#1E5E9B'
+                                    }}
+                                >
+                                    SAIBA MAIS →
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {/* Lado direito - Imagem maior e mais acima */}
+                    <div className="lg:w-1/2 flex justify-center items-start">
+                        <img
+                            src="/image.png"
+                            alt="Alunos aprovados Poliedro"
+                            width={1000}
+                            height={716}
+                            style={{
+                                width: "100%",
+                                height: "auto",
+                                maxWidth: "1000px",
+                                objectFit: "contain",
+                                marginTop: "-80px",
+                            }}
+                        />
+                    </div>
+                </div>
             </div>
         </section>
     );

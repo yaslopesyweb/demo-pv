@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, Menu, X, ChevronRight } from "lucide-react";
@@ -9,6 +9,17 @@ import { Button } from "@/components/ui/button";
 export function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    // Detectar scroll
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 10);
+        };
+        
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const menuItems = [
         {
@@ -49,20 +60,26 @@ export function Navbar() {
     };
 
     return (
-        <header className="cmp-header w-full bg-white border-b border-gray-200 sticky top-0 z-50 pt-2 pr-2 pb-6 pl-4">
-            <div className="cmp-header__ctn container mx-auto px-4 max-w-7xl">
-                <div className="flex items-center justify-between h-20">
+        <header 
+            className={`
+                w-full sticky top-0 z-50 transition-all duration-300
+                ${isScrolled 
+                    ? 'bg-white/60 backdrop-blur-md' 
+                    : 'bg-white'
+                }
+            `}
+        >
+            <div className="container mx-auto px-4 max-w-7xl">
+                <div className="flex items-center justify-between h-16">
                     {/* Logo */}
-                    <Link href="/" className="cmp-header__logo flex items-center">
+                    <Link href="/" className="flex items-center">
                         <Image
                             src="/logo-poliedro-curso (2).svg"
                             alt="Poliedro Cursos"
                             width={220}
                             height={60}
-                            className="h-12 w-auto object-contain left-1"
+                            className="h-12 w-auto object-contain"
                             priority
-                            fetchPriority="high"
-                            decoding="async"
                         />
                     </Link>
 
@@ -83,7 +100,7 @@ export function Navbar() {
                                                 </button>
 
                                                 {/* Submenu dropdown */}
-                                                <div className="absolute top-full left-0 w-64 bg-white shadow-lg rounded-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                                <div className="absolute top-full left-0 w-64 bg-white/95 backdrop-blur-sm rounded-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                                                     {item.submenu.map((subItem) => (
                                                         <Link
                                                             key={subItem.name}
@@ -114,15 +131,16 @@ export function Navbar() {
                     </div>
 
                     {/* Right Side Icons and Buttons */}
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2">
                         {/* Search - Desktop */}
                         <div className="hidden lg:block">
                             <Link
                                 href="#buscar"
-                                className="flex items-center justify-center w-10 h-10 text-gray-600 hover:text-blue-600 transition-colors"
+                                className="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 hover:scale-110 hover:opacity-80"
+                                style={{ backgroundColor: '#E4D6CF' }}
                                 aria-label="Buscar"
                             >
-                                <Search className="h-5 w-5" />
+                                <Search className="h-5 w-5 text-gray-700" />
                             </Link>
                         </div>
 
@@ -132,16 +150,20 @@ export function Navbar() {
                                 href="https://wa.me/551239281616"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-center w-10 h-10 text-gray-600 hover:text-green-600 transition-colors"
+                                className="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 hover:scale-110 hover:opacity-80"
+                                style={{ backgroundColor: '#1F9252' }}
                                 aria-label="whatsapp"
                             >
-                                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12.004 2.003c-5.521 0-10 4.479-10 10 0 1.773.471 3.485 1.357 4.999L2 21.997l5.078-1.318c1.49.827 3.179 1.264 4.926 1.264 5.52 0 10-4.479 10-10 0-5.52-4.48-10-10-10zm5.657 14.486c-.239.672-1.19 1.23-1.957 1.358-.521.085-1.188.149-3.45-.74-2.893-1.136-4.757-3.92-4.902-4.099-.14-.18-1.171-1.556-1.171-2.97 0-1.414.743-2.11 1.005-2.398.262-.289.572-.361.762-.361.19 0 .38.001.547.01.193.008.424-.068.663.508.239.576.811 1.992.883 2.136.071.144.119.313.036.505-.084.192-.125.313-.25.482-.125.168-.262.375-.375.504-.125.125-.255.26-.109.51.145.25.646 1.067 1.386 1.726.954.85 1.756 1.113 2.005 1.238.25.125.396.108.542-.065.146-.173.625-.729.792-.979.168-.25.336-.209.567-.125.231.084 1.464.69 1.715.816.25.125.417.187.479.29.063.104.063.603-.176 1.255z" />
                                 </svg>
                             </Link>
 
                             {/* Bolsas Button */}
-                            <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 rounded-full">
+                            <Button 
+                                className="text-white font-semibold px-6 rounded-full transition-all duration-200 hover:scale-105 hover:opacity-90"
+                                style={{ backgroundColor: '#C9440F' }}
+                            >
                                 BOLSAS
                             </Button>
                         </div>
@@ -151,7 +173,7 @@ export function Navbar() {
                             href="https://pmais.p4ed.com/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="cmp-header__external hidden lg:block"
+                            className="hidden lg:block"
                             title="P+"
                         >
                             <Image
@@ -160,8 +182,6 @@ export function Navbar() {
                                 width={38}
                                 height={38}
                                 className="w-8 h-8"
-                                fetchPriority="high"
-                                decoding="async"
                             />
                         </Link>
 
@@ -274,7 +294,8 @@ export function Navbar() {
                             <Link
                                 href="/bolsas/"
                                 target="_blank"
-                                className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-center py-3 rounded-full"
+                                className="block w-full text-white font-semibold text-center py-3 rounded-full transition-all duration-200 hover:scale-105 hover:opacity-90"
+                                style={{ backgroundColor: '#C9440F' }}
                                 onClick={() => setIsMenuOpen(false)}
                             >
                                 BOLSAS
@@ -284,7 +305,8 @@ export function Navbar() {
                                 href="https://wa.me/551239281616"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-center space-x-2 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-full"
+                                className="flex items-center justify-center space-x-2 w-full text-white font-semibold py-3 rounded-full transition-all duration-200 hover:scale-105 hover:opacity-90"
+                                style={{ backgroundColor: '#1F9252' }}
                                 onClick={() => setIsMenuOpen(false)}
                             >
                                 <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">

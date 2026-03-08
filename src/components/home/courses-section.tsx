@@ -39,7 +39,6 @@ const cursosData = [
 export function CoursesSection() {
     return (
         <section className="py-16 bg-gray-50">
-            <div className="container mx-auto px-4 max-w-6xl">
                 {/* Div branca com bordas arredondadas */}
                 <div className="bg-white rounded-3xl py-10 px-6 md:px-8 shadow-sm">
                     <h2 className="text-3xl text-center mb-12">
@@ -60,7 +59,6 @@ export function CoursesSection() {
                         ))}
                     </div>
                 </div>
-            </div>
         </section>
     );
 }
