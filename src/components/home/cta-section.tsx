@@ -1,31 +1,13 @@
 import { Button } from "@/components/ui/button";
 
 export function CtaSection() {
-    const primaryColor = "rgb(204, 64, 20)";
-
     return (
-        <section className="py-12" style={{ backgroundColor: primaryColor }}>
+        <section className="py-12 bg-blue-600 text-white">
             <div className="container mx-auto px-4 max-w-6xl text-center">
-                <h3
-                    className="text-2xl font-semibold mb-4 text-white"
-                    style={{
-                        fontFamily: 'Ubuntu, sans-serif',
-                        fontWeight: 400
-                    }}
-                >
+                <h3 className="text-2xl font-semibold mb-4">
                     Fale com um consultor para auxiliar na matrícula
                 </h3>
-                <Button
-                    variant="secondary"
-                    size="lg"
-                    className="hover:opacity-90 transition-opacity rounded-full px-8 py-6 text-base font-medium"
-                    style={{
-                        fontFamily: 'Ubuntu, sans-serif',
-                        backgroundColor: 'white',
-                        color: primaryColor,
-                        border: 'none'
-                    }}
-                >
+                <Button variant="secondary" size="lg" className="bg-white text-blue-600 hover:bg-gray-100 rounded-full">
                     Falar com Consultor
                 </Button>
             </div>
