@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ArrowLeftIcon, ArrowRight } from "lucide-react";
 
 interface CursoCardProps {
   titulo: string;
@@ -12,16 +13,14 @@ interface CursoCardProps {
 }
 
 export function CursoCard({ titulo, descricao, inicio, colecao, badges, cor }: CursoCardProps) {
-  const primaryColor = "rgb(204, 64, 20)";
-  
   return (
     <Card className="h-full flex flex-col hover:shadow-lg transition-shadow rounded-2xl overflow-hidden border-gray-200 relative">
       <div
-        className="absolute top-0 left-0 right-0 h-0.5"
+        className="absolute top-0 left-0 right-0 h-2"
         style={{backgroundColor: cor}}
       />
 
-      <CardHeader className="pb-2 pt-4">
+      <CardHeader className="pb-2">
         <CardTitle 
           className="text-xl"
           style={{ 
@@ -43,7 +42,7 @@ export function CursoCard({ titulo, descricao, inicio, colecao, badges, cor }: C
           {descricao}
         </p>
       </CardHeader>
-      <CardContent className="flex-grow space-y-3">
+      <CardContent className="grow space-y-3">
         <div>
           <p 
             className="text-xs"
@@ -75,7 +74,7 @@ export function CursoCard({ titulo, descricao, inicio, colecao, badges, cor }: C
               color: 'rgb(60, 60, 60)'
             }}
           >
-            Stimulados:
+            Simulados:
           </p>
           <div className="flex flex-wrap gap-2">
             {badges.map((badge, index) => (
@@ -98,14 +97,15 @@ export function CursoCard({ titulo, descricao, inicio, colecao, badges, cor }: C
       </CardContent>
       <CardFooter>
         <Button 
-          className="w-full text-white font-medium py-2 text-sm rounded-lg hover:opacity-90 transition-opacity"
+          className="w-full text-white font-medium py-2 text-sm rounded-3xl hover:opacity-90 transition-opacity flex items-center justify-center"
           style={{ 
             fontFamily: 'Ubuntu, sans-serif',
             backgroundColor: cor,
             border: 'none'
           }}
         >
-          MATRICULE-SE JÁ →
+          MATRICULE-SE JÁ 
+          <ArrowRight className="ml-1 h-4 w-4" strokeWidth={3} />
         </Button>
       </CardFooter>
     </Card>

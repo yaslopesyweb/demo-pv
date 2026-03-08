@@ -69,31 +69,35 @@ export default function Home() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <CursoCard
               titulo="Medicina Online"
-              descricao="A melhor preparação online para quem busca medicinas focadas nos principais vestibulares."
-              inicio="2 de Fevereiro de 2022"
+              descricao="Se o seu objetivo é ingressar em uma faculdade de Medicina, essa turma é para você. Com foco em física, química e biologia, oferece conteúdos aprofundados e simulados específicos para quem busca uma vaga nas melhores universidades da área."
+              inicio="2 de fevereiro de 2026"
               colecao="MED Digital"
               badges={["Enem", "Fuvest", "Unicamp"]}
+              cor="#2C77C4" // Azul medicina
             />
             <CursoCard
               titulo="Turma ITA Online"
-              descricao="A escolha perfeita para a gestão de um programa de formação online para profissionais voltados à saúde."
+              descricao="Se o seu objetivo é ingressar em cursos de Engenharia nas instituições mais concorridas, essa turma é para você. Com aulas de nível avançado e professores experientes, o foco é preparar você para os desafios de vestibulares exigentes ITA e IME."
               inicio="12 de janeiro de 2026"
               colecao="ITA Digital"
-              badges={["Etra", "Fuvest", "Unicamp"]}
+              badges={["ITA", "IME", "Unicamp"]}
+              cor="#4D6C45" // Verde ITA
             />
             <CursoCard
               titulo="Enem Online"
-              descricao="Prepare-se ao vivo no turno noturno com aulas online. Focadas no Enem e principais vestibulares."
+              descricao="Se o seu objetivo é conquistar uma vaga em uma universidade pública ou garantir uma boa pontuação no ENEM, essa turma é para você. Com professores experientes e estratégias para melhorar seu desempenho em todas as áreas do exame."
               inicio="2 de março de 2026"
               colecao="PIT Digital"
               badges={["Enem", "Fuvest", "Unicamp"]}
+              cor="#E65B0B" // Laranja Enem
             />
             <CursoCard
               titulo="Extensivo Manhã"
-              descricao="Prepare-se ao vivo no turno noturno com aulas online. Focadas no Enem e principais vestibulares."
-              inicio="1º fev de 2026"
+              descricao="Prepare-se ao vivo no turno manha do extensivo com aulas online. Ela trabalha os conteúdos de forma aprofundada, ideal para quem tem mais tempo para se dedicar e quer uma preparação completa para o Enem e principais vestibulares."
+              inicio="1 de fevereiro de 2026"
               colecao="PIT Digital"
               badges={["Etra", "Fuvest", "Unicamp"]}
+              cor="#1C467E" // Azul escuro Extensivo
             />
           </div>
         </div>
