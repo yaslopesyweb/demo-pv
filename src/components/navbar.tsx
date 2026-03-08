@@ -16,7 +16,7 @@ export function Navbar() {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 10);
         };
-        
+
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
@@ -60,11 +60,11 @@ export function Navbar() {
     };
 
     return (
-        <header 
+        <header
             className={`
                 w-full sticky top-0 z-50 transition-all duration-300
-                ${isScrolled 
-                    ? 'bg-white/60 backdrop-blur-md' 
+                ${isScrolled
+                    ? 'bg-white/60 backdrop-blur-md'
                     : 'bg-white'
                 }
             `}
@@ -160,7 +160,7 @@ export function Navbar() {
                             </Link>
 
                             {/* Bolsas Button */}
-                            <Button 
+                            <Button
                                 className="text-white font-semibold px-6 rounded-full transition-all duration-200 hover:scale-105 hover:opacity-90"
                                 style={{ backgroundColor: '#C9440F' }}
                             >
@@ -292,7 +292,7 @@ export function Navbar() {
                         {/* Mobile Action Buttons */}
                         <div className="mt-6 space-y-3">
                             <Link
-                                href="/bolsas/"
+                                href="/checkout"
                                 target="_blank"
                                 className="block w-full text-white font-semibold text-center py-3 rounded-full transition-all duration-200 hover:scale-105 hover:opacity-90"
                                 style={{ backgroundColor: '#C9440F' }}

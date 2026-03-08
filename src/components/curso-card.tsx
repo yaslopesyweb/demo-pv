@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link"; // Adicione esta importação
 
 interface CursoCardProps {
   titulo: string;
@@ -96,17 +97,19 @@ export function CursoCard({ titulo, descricao, inicio, colecao, badges, cor }: C
         </div>
       </CardContent>
       <CardFooter>
-        <Button 
-          className="w-full text-white font-medium py-2 text-sm rounded-3xl hover:opacity-90 transition-opacity flex items-center justify-center"
-          style={{ 
-            fontFamily: 'Ubuntu, sans-serif',
-            backgroundColor: cor,
-            border: 'none'
-          }}
-        >
-          MATRICULE-SE JÁ 
-          <ArrowRight className="ml-1 h-4 w-4" strokeWidth={3} />
-        </Button>
+        <Link href="/checkout" className="w-full"> {/* Envolva o Button com Link */}
+          <Button 
+            className="w-full text-white font-medium py-2 text-sm rounded-3xl hover:opacity-90 transition-opacity flex items-center justify-center"
+            style={{ 
+              fontFamily: 'Ubuntu, sans-serif',
+              backgroundColor: cor,
+              border: 'none'
+            }}
+          >
+            MATRICULE-SE JÁ 
+            <ArrowRight className="ml-1 h-4 w-4" strokeWidth={3} />
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   );
