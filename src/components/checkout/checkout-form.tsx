@@ -7,9 +7,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import api from "@/services/api";
+import { AxiosError } from "axios";
 
 interface CheckoutFormProps {
-    onProximo?: () => void;
+    onProximo?: (alunoId?: number) => void;
     etapaAtual: 1 | 2 | 3;
 }
 
@@ -22,6 +24,8 @@ export function CheckoutForm({ onProximo, etapaAtual }: CheckoutFormProps) {
         telefone: "",
         aceitaPolitica: false
     });
+    const [loading, setLoading] = useState(false);
+    const [erro, setErro] = useState<string | null>(null);
 
     const isFormValid = () => {
         return (
@@ -39,15 +43,60 @@ export function CheckoutForm({ onProximo, etapaAtual }: CheckoutFormProps) {
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
+        setErro(null);
     };
 
     const handleCancel = () => {
         router.push('/');
     };
 
-    const handleProximo = () => {
-        if (isFormValid() && onProximo) {
-            onProximo();
+    const handleSubmit = async () => {
+        if (!isFormValid()) return;
+
+        setLoading(true);
+        setErro(null);
+
+        try {
+            console.log('📤 Enviando dados do aluno:', formData);
+            
+            const response = await api.post('/alunos', {
+                nomeCompleto: formData.nomeCompleto,
+                cpf: formData.cpf,
+                email: formData.email,
+                telefone: formData.telefone
+            });
+
+            console.log('📥 Resposta da API:', response.data);
+
+            if (onProximo) {
+                onProximo(response.data.aluno.id);
+            }
+
+        } catch (error) {
+            console.error('❌ Erro ao cadastrar aluno:', error);
+            
+            if (error instanceof AxiosError) {
+                if (error.response?.status === 409) {
+                    setErro(error.response.data?.erro || 'Dados já cadastrados');
+                } else if (error.response?.status === 400) {
+                    const detalhes = error.response.data?.detalhes;
+                    if (detalhes && detalhes.length > 0) {
+                        setErro(detalhes[0]);
+                    } else {
+                        setErro('Dados inválidos. Verifique as informações.');
+                    }
+                } else if (error.response) {
+                    setErro('Erro no servidor. Tente novamente mais tarde.');
+                } else if (error.request) {
+                    setErro('Não foi possível conectar ao servidor. Verifique se o backend está rodando.');
+                } else {
+                    setErro('Ocorreu um erro. Tente novamente.');
+                }
+            } else {
+                setErro('Ocorreu um erro inesperado.');
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -64,12 +113,14 @@ export function CheckoutForm({ onProximo, etapaAtual }: CheckoutFormProps) {
             <CardContent className="pt-6 space-y-5">
                 {etapaAtual === 1 && (
                     <>
-                        {/* Nome Completo */}
+                        {erro && (
+                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                                {erro}
+                            </div>
+                        )}
+
                         <div className="space-y-2">
-                            <label
-                                htmlFor="nomeCompleto"
-                                className="text-sm font-medium text-gray-700 block"
-                            >
+                            <label htmlFor="nomeCompleto" className="text-sm font-medium text-gray-700 block">
                                 Nome Completo
                             </label>
                             <Input
@@ -79,17 +130,14 @@ export function CheckoutForm({ onProximo, etapaAtual }: CheckoutFormProps) {
                                 value={formData.nomeCompleto}
                                 onChange={handleChange}
                                 placeholder="Nome Completo"
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full p-3 border border-gray-300 rounded-lg"
                                 required
+                                disabled={loading}
                             />
                         </div>
 
-                        {/* CPF */}
                         <div className="space-y-2">
-                            <label
-                                htmlFor="cpf"
-                                className="text-sm font-medium text-gray-700 block"
-                            >
+                            <label htmlFor="cpf" className="text-sm font-medium text-gray-700 block">
                                 CPF
                             </label>
                             <Input
@@ -99,17 +147,14 @@ export function CheckoutForm({ onProximo, etapaAtual }: CheckoutFormProps) {
                                 value={formData.cpf}
                                 onChange={handleChange}
                                 placeholder="000.000.000-00"
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full p-3 border border-gray-300 rounded-lg"
                                 required
+                                disabled={loading}
                             />
                         </div>
 
-                        {/* E-mail */}
                         <div className="space-y-2">
-                            <label
-                                htmlFor="email"
-                                className="text-sm font-medium text-gray-700 block"
-                            >
+                            <label htmlFor="email" className="text-sm font-medium text-gray-700 block">
                                 E-mail
                             </label>
                             <Input
@@ -119,17 +164,14 @@ export function CheckoutForm({ onProximo, etapaAtual }: CheckoutFormProps) {
                                 value={formData.email}
                                 onChange={handleChange}
                                 placeholder="E-mail"
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full p-3 border border-gray-300 rounded-lg"
                                 required
+                                disabled={loading}
                             />
                         </div>
 
-                        {/* Telefone */}
                         <div className="space-y-2">
-                            <label
-                                htmlFor="telefone"
-                                className="text-sm font-medium text-gray-700 block"
-                            >
+                            <label htmlFor="telefone" className="text-sm font-medium text-gray-700 block">
                                 Telefone
                             </label>
                             <Input
@@ -139,12 +181,12 @@ export function CheckoutForm({ onProximo, etapaAtual }: CheckoutFormProps) {
                                 value={formData.telefone}
                                 onChange={handleChange}
                                 placeholder="(00) 00000-0000"
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full p-3 border border-gray-300 rounded-lg"
                                 required
+                                disabled={loading}
                             />
                         </div>
 
-                        {/* Checkbox de Política de Privacidade */}
                         <div className="flex items-start space-x-3 pt-2">
                             <Checkbox
                                 id="aceitaPolitica"
@@ -154,20 +196,24 @@ export function CheckoutForm({ onProximo, etapaAtual }: CheckoutFormProps) {
                                     setFormData(prev => ({ ...prev, aceitaPolitica: checked as boolean }))
                                 }
                                 className="mt-1"
+                                disabled={loading}
                             />
-                            <label
-                                htmlFor="aceitaPolitica"
-                                className="text-sm text-gray-600 leading-relaxed"
-                            >
+                            <label htmlFor="aceitaPolitica" className="text-sm text-gray-600 leading-relaxed">
                                 Li e concordo com a <Link href="/politica-de-privacidade" className="text-blue-600 hover:underline font-medium">Política de Privacidade</Link> e Proteção de Dados.
                             </label>
                         </div>
+
+                        {!isFormValid() && !loading && (
+                            <p className="text-xs text-gray-500 text-center pt-2">
+                                Preencha todos os campos e aceite os termos para continuar
+                            </p>
+                        )}
                     </>
                 )}
 
                 {etapaAtual === 2 && (
                     <div className="text-center py-8">
-                        <p className="text-gray-600">Página de Pagamento (em desenvolvimento)</p>
+                        <p className="text-gray-600">Carregando dados do aluno...</p>
                     </div>
                 )}
 
@@ -183,29 +229,39 @@ export function CheckoutForm({ onProximo, etapaAtual }: CheckoutFormProps) {
                     </div>
                 )}
 
-                {/* Botões de ação */}
                 <div className="flex gap-4 pt-6 border-t border-gray-100">
                     <Button
                         type="button"
                         variant="outline"
                         onClick={handleCancel}
+                        disabled={loading}
                         className="flex-1 py-6 text-gray-700 border-gray-300 hover:bg-gray-50 rounded-lg"
                     >
                         Cancelar
                     </Button>
                     
-                    {etapaAtual < 3 && (
+                    {etapaAtual === 1 && (
                         <Button
                             type="button"
-                            onClick={handleProximo}
-                            disabled={etapaAtual === 1 && !isFormValid()}
+                            onClick={handleSubmit}
+                            disabled={!isFormValid() || loading}
                             className={`flex-1 py-6 text-white rounded-lg ${
-                                (etapaAtual === 1 && !isFormValid())
+                                (!isFormValid() || loading)
                                     ? 'bg-gray-400 cursor-not-allowed'
                                     : 'bg-blue-600 hover:bg-blue-700'
                             }`}
                         >
-                            Próximo
+                            {loading ? 'Enviando...' : 'Próximo'}
+                        </Button>
+                    )}
+
+                    {etapaAtual === 2 && (
+                        <Button
+                            type="button"
+                            disabled
+                            className="flex-1 py-6 bg-gray-400 text-white rounded-lg cursor-not-allowed"
+                        >
+                            Aguarde...
                         </Button>
                     )}
 

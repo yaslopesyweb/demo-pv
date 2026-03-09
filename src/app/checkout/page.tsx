@@ -5,10 +5,20 @@ import Link from "next/link";
 import Image from "next/image";
 import { CheckoutLayout } from "@/components/checkout/checkout-layout";
 import { CheckoutStepper } from "@/components/checkout/checkout-stepper";
-import { CheckoutForm as FormularioCheckout } from "@/components/checkout/checkout-form"; // ← CORRIGIDO
+import { CheckoutForm as FormularioCheckout } from "@/components/checkout/checkout-form";
+import PagamentoForm from "@/components/checkout/pagamento-form";
 
 export default function CheckoutPage() {
     const [etapaAtual, setEtapaAtual] = useState<number>(1);
+    const [alunoId, setAlunoId] = useState<number | undefined>();
+
+    // CORRIGIDO: Aceita número ou undefined, mas só atualiza se for número
+    const handleAlunoCriado = (id?: number) => {
+        if (id) {
+            setAlunoId(id);
+            irParaProximaEtapa();
+        }
+    };
 
     const irParaProximaEtapa = () => {
         if (etapaAtual < 3) {
@@ -47,29 +57,17 @@ export default function CheckoutPage() {
                 <div className="w-full">
                     {etapaAtual === 1 && (
                         <FormularioCheckout 
-                            onProximo={irParaProximaEtapa}
+                            onProximo={handleAlunoCriado}
                             etapaAtual={1}
                         />
                     )}
                     
                     {etapaAtual === 2 && (
-                        <div className="text-center py-12">
-                            <p className="text-gray-600">Página de Pagamento (em desenvolvimento)</p>
-                            <div className="flex gap-4 justify-center mt-8">
-                                <button
-                                    onClick={irParaEtapaAnterior}
-                                    className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                                >
-                                    Voltar
-                                </button>
-                                <button
-                                    onClick={irParaProximaEtapa}
-                                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                                >
-                                    Próximo
-                                </button>
-                            </div>
-                        </div>
+                        <PagamentoForm
+                            onVoltar={irParaEtapaAnterior}
+                            onProximo={irParaProximaEtapa}
+                            alunoId={alunoId}
+                        />
                     )}
                     
                     {etapaAtual === 3 && (
