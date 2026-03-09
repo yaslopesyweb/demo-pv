@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Ubuntu } from "next/font/google";
 import { Navbar } from "@/components/navbar";
 import { usePathname } from "next/navigation";
+import { CarrinhoProvider } from "@/components/carrinho/carrinho-context"; // ← ADICIONADO
 import "./globals.css";
 
 const ubuntu = Ubuntu({
@@ -31,10 +32,13 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={ubuntu.className}>
-        {!isCheckoutPage && <Navbar />}
-        <main className={!isCheckoutPage ? "pt-30 min-h-screen" : "min-h-screen"}>
-          {children}
-        </main>
+        {/* Envolvemos tudo com o CarrinhoProvider */}
+        <CarrinhoProvider>
+          {!isCheckoutPage && <Navbar />}
+          <main className={!isCheckoutPage ? "pt-30 min-h-screen" : "min-h-screen"}>
+            {children}
+          </main>
+        </CarrinhoProvider>
       </body>
     </html>
   );

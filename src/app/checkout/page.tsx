@@ -1,18 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { CheckoutLayout } from "@/components/checkout/checkout-layout";
 import { CheckoutStepper } from "@/components/checkout/checkout-stepper";
 import { CheckoutForm as FormularioCheckout } from "@/components/checkout/checkout-form";
 import PagamentoForm from "@/components/checkout/pagamento-form";
+import { useCarrinho } from "@/components/carrinho/carrinho-context";
 
 export default function CheckoutPage() {
+    const router = useRouter();
+    const { itens, totalPreco, totalParcelas, limparCarrinho } = useCarrinho();
     const [etapaAtual, setEtapaAtual] = useState<number>(1);
     const [alunoId, setAlunoId] = useState<number | undefined>();
 
-    // CORRIGIDO: Aceita número ou undefined, mas só atualiza se for número
+    // Redirecionar se carrinho estiver vazio
+    useEffect(() => {
+        if (itens.length === 0 && etapaAtual === 1) {
+            router.push("/carrinho");
+        }
+    }, [itens, etapaAtual, router]);
+
     const handleAlunoCriado = (id?: number) => {
         if (id) {
             setAlunoId(id);
@@ -31,6 +41,23 @@ export default function CheckoutPage() {
             setEtapaAtual(etapaAtual - 1);
         }
     };
+
+    const handlePagamentoConcluido = () => {
+        // Limpar carrinho após pagamento bem-sucedido
+        limparCarrinho();
+        irParaProximaEtapa();
+    };
+
+    // Se carrinho estiver vazio e não for etapa de confirmação, mostra loading
+    if (itens.length === 0 && etapaAtual !== 3) {
+        return (
+            <CheckoutLayout>
+                <div className="max-w-2xl mx-auto w-full text-center py-12">
+                    <p className="text-gray-600">Redirecionando para o carrinho...</p>
+                </div>
+            </CheckoutLayout>
+        );
+    }
 
     return (
         <CheckoutLayout>
@@ -54,6 +81,26 @@ export default function CheckoutPage() {
                     <CheckoutStepper etapaAtual={etapaAtual as 1 | 2 | 3} />
                 </div>
 
+                {/* Resumo do pedido (visível em todas as etapas) */}
+                {itens.length > 0 && (
+                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
+                        <h3 className="text-sm font-semibold text-blue-800 mb-2">Resumo do pedido</h3>
+                        {itens.map((item) => (
+                            <div key={item.id} className="flex justify-between text-sm text-gray-600 mb-1">
+                                <span>{item.titulo} x{item.quantidade}</span>
+                                <span>R$ {(item.preco * item.quantidade).toLocaleString('pt-BR')},00</span>
+                            </div>
+                        ))}
+                        <div className="border-t border-blue-200 mt-2 pt-2 flex justify-between font-bold text-blue-800">
+                            <span>Total:</span>
+                            <span>R$ {totalPreco.toLocaleString('pt-BR')},00</span>
+                        </div>
+                        <div className="text-xs text-blue-600 mt-1">
+                            em até {totalParcelas}x sem juros
+                        </div>
+                    </div>
+                )}
+
                 <div className="w-full">
                     {etapaAtual === 1 && (
                         <FormularioCheckout 
@@ -65,7 +112,7 @@ export default function CheckoutPage() {
                     {etapaAtual === 2 && (
                         <PagamentoForm
                             onVoltar={irParaEtapaAnterior}
-                            onProximo={irParaProximaEtapa}
+                            onProximo={handlePagamentoConcluido}
                             alunoId={alunoId}
                         />
                     )}
@@ -77,10 +124,13 @@ export default function CheckoutPage() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
-                            <h2 className="text-2xl font-bold text-gray-800 mb-2">Confirmação</h2>
-                            <p className="text-gray-600 mb-6">Sua matrícula foi realizada com sucesso!</p>
-                            <Link href="/" className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg">
-                                Voltar para a página inicial
+                            <h2 className="text-2xl font-bold text-gray-800 mb-2">Pagamento Confirmado!</h2>
+                            <p className="text-gray-600 mb-2">Sua matrícula foi realizada com sucesso.</p>
+                            <p className="text-sm text-gray-500 mb-6">
+                                Um e-mail de confirmação foi enviado para você.
+                            </p>
+                            <Link href="/" className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                Voltar para página inicial
                             </Link>
                         </div>
                     )}

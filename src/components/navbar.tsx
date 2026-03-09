@@ -3,13 +3,15 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Menu, X, ChevronRight } from "lucide-react";
+import { Search, Menu, X, ChevronRight, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCarrinho } from "@/components/carrinho/carrinho-context";
 
 export function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
     const [isScrolled, setIsScrolled] = useState(false);
+    const { totalItens } = useCarrinho();
 
     // Detectar scroll
     useEffect(() => {
@@ -132,6 +134,22 @@ export function Navbar() {
 
                     {/* Right Side Icons and Buttons */}
                     <div className="flex items-center space-x-2">
+                        {/* Carrinho - Desktop */}
+                        <div className="hidden lg:block relative">
+                            <Link
+                                href="/carrinho"
+                                className="flex items-center justify-center w-10 h-10 text-gray-600 hover:text-blue-600 transition-colors relative"
+                                aria-label="Carrinho"
+                            >
+                                <ShoppingBag className="h-5 w-5" />
+                                {totalItens > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+                                        {totalItens}
+                                    </span>
+                                )}
+                            </Link>
+                        </div>
+
                         {/* Search - Desktop */}
                         <div className="hidden lg:block">
                             <Link
@@ -163,8 +181,9 @@ export function Navbar() {
                             <Button
                                 className="text-white font-semibold px-6 rounded-full transition-all duration-200 hover:scale-105 hover:opacity-90"
                                 style={{ backgroundColor: '#C9440F' }}
+                                asChild
                             >
-                                BOLSAS
+                                <Link href="/checkout">BOLSAS</Link>
                             </Button>
                         </div>
 
@@ -240,8 +259,25 @@ export function Navbar() {
                             </form>
                         </div>
 
+                        {/* Carrinho no Mobile */}
+                        <Link
+                            href="/carrinho"
+                            className="flex items-center justify-between py-3 text-gray-700 font-medium border-b border-gray-100"
+                            onClick={() => setIsMenuOpen(false)}
+                        >
+                            <div className="flex items-center gap-2">
+                                <ShoppingBag className="h-5 w-5" />
+                                <span>Carrinho</span>
+                            </div>
+                            {totalItens > 0 && (
+                                <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                                    {totalItens} {totalItens === 1 ? 'item' : 'itens'}
+                                </span>
+                            )}
+                        </Link>
+
                         {/* Mobile Menu Items */}
-                        <nav className="cmp-menu__list-wrapper">
+                        <nav className="cmp-menu__list-wrapper mt-2">
                             <ul className="space-y-2">
                                 {menuItems.map((item) => (
                                     <li key={item.name} className="border-b border-gray-100 last:border-0">
@@ -293,7 +329,6 @@ export function Navbar() {
                         <div className="mt-6 space-y-3">
                             <Link
                                 href="/checkout"
-                                target="_blank"
                                 className="block w-full text-white font-semibold text-center py-3 rounded-full transition-all duration-200 hover:scale-105 hover:opacity-90"
                                 style={{ backgroundColor: '#C9440F' }}
                                 onClick={() => setIsMenuOpen(false)}

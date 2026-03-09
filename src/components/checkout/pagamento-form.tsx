@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import api from "@/services/api";
 import { AxiosError } from "axios";
+import { useCarrinho } from "@/components/carrinho/carrinho-context";
 
 interface PagamentoFormProps {
     onVoltar: () => void;
@@ -17,7 +18,16 @@ interface PagamentoFormProps {
     alunoId?: number;
 }
 
+// Função para formatar valores monetários corretamente
+const formatarMoeda = (valor: number): string => {
+    return valor.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+};
+
 export default function PagamentoForm({ onVoltar, onProximo, alunoId }: PagamentoFormProps) {
+    const { itens, totalPreco, totalParcelas, limparCarrinho } = useCarrinho();
     const [loading, setLoading] = useState(false);
     const [erro, setErro] = useState<string | null>(null);
     
@@ -33,12 +43,17 @@ export default function PagamentoForm({ onVoltar, onProximo, alunoId }: Pagament
         recorrente: false
     });
 
-    // Preços (depois podem vir do backend)
-    const precos = {
-        total: 10000,
-        parcelas: 10,
-        valorParcela: 1000
-    };
+    // Calcular valor da parcela (total / parcelas)
+    const valorParcela = totalParcelas > 0 ? totalPreco / totalParcelas : 0;
+
+    // DEBUG: Mostrar valores no console
+    console.log('💰 Valores do pagamento:', {
+        totalPreco,
+        totalParcelas,
+        valorParcela,
+        totalFormatado: formatarMoeda(totalPreco),
+        parcelaFormatada: formatarMoeda(valorParcela)
+    });
 
     const handleChangeCartao = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -111,6 +126,33 @@ export default function PagamentoForm({ onVoltar, onProximo, alunoId }: Pagament
         return true;
     };
 
+    const criarPedido = async () => {
+        try {
+            const pedidoPayload = {
+                aluno_id: alunoId,
+                total: totalPreco,
+                parcelas: totalParcelas,
+                itens: itens.map(item => ({
+                    id: item.id,
+                    titulo: item.titulo,
+                    quantidade: item.quantidade,
+                    preco: item.preco
+                }))
+            };
+
+            console.log('📦 Criando pedido:', pedidoPayload);
+            
+            const pedidoResponse = await api.post('/pedidos', pedidoPayload);
+            console.log('📦 Pedido criado:', pedidoResponse.data);
+            
+            return pedidoResponse.data.pedido.id;
+            
+        } catch (error) {
+            console.error('❌ Erro ao criar pedido:', error);
+            throw new Error('Erro ao criar pedido');
+        }
+    };
+
     const handleSubmit = async () => {
         if (!validarCartao()) return;
 
@@ -118,19 +160,28 @@ export default function PagamentoForm({ onVoltar, onProximo, alunoId }: Pagament
         setErro(null);
 
         try {
-            // Verificar se tem alunoId
             if (!alunoId) {
                 setErro('ID do aluno não encontrado. Volte e tente novamente.');
                 setLoading(false);
                 return;
             }
 
-            // Preparar payload
+            if (itens.length === 0) {
+                setErro('Carrinho vazio. Adicione itens antes de finalizar a compra.');
+                setLoading(false);
+                return;
+            }
+
+            // Criar pedido
+            const pedidoId = await criarPedido();
+
+            // Preparar payload do pagamento
             const payload = {
                 aluno_id: alunoId,
+                pedido_id: pedidoId,
                 formaPagamento,
                 responsavelFinanceiro: responsavel,
-                parcelas: formaPagamento === 'cartao' ? 10 : 1,
+                parcelas: totalParcelas,
                 ...(formaPagamento === 'cartao' && {
                     cartao: {
                         numero: dadosCartao.numero.replace(/\D/g, ''),
@@ -139,17 +190,15 @@ export default function PagamentoForm({ onVoltar, onProximo, alunoId }: Pagament
                         recorrente: dadosCartao.recorrente
                     }
                 }),
-                valor: precos.total
+                valor: totalPreco
             };
 
-            console.log('📤 Enviando pagamento para API:', payload);
+            console.log('📤 Enviando pagamento:', payload);
             
-            // Chamada real à API
             const response = await api.post('/pagamentos', payload);
+            console.log('📥 Resposta:', response.data);
             
-            console.log('📥 Resposta da API:', response.data);
-            
-            // Se deu certo, avança
+            limparCarrinho();
             onProximo();
 
         } catch (error: unknown) {
@@ -184,7 +233,6 @@ export default function PagamentoForm({ onVoltar, onProximo, alunoId }: Pagament
             </CardHeader>
 
             <CardContent className="pt-6 space-y-6">
-                {/* Mensagem de erro */}
                 {erro && (
                     <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
                         {erro}
@@ -218,7 +266,9 @@ export default function PagamentoForm({ onVoltar, onProximo, alunoId }: Pagament
                                 <RadioGroupItem value="boleto" id="boleto" />
                                 <Label htmlFor="boleto" className="font-medium cursor-pointer">Boleto à vista</Label>
                             </div>
-                            <span className="font-bold text-gray-900">R$ {precos.total.toLocaleString('pt-BR')},00</span>
+                            <span className="font-bold text-gray-900">
+                                R$ {formatarMoeda(totalPreco)}
+                            </span>
                         </div>
 
                         {/* PIX */}
@@ -227,7 +277,9 @@ export default function PagamentoForm({ onVoltar, onProximo, alunoId }: Pagament
                                 <RadioGroupItem value="pix" id="pix" />
                                 <Label htmlFor="pix" className="font-medium cursor-pointer">PIX</Label>
                             </div>
-                            <span className="font-bold text-gray-900">R$ {precos.total.toLocaleString('pt-BR')},00</span>
+                            <span className="font-bold text-gray-900">
+                                R$ {formatarMoeda(totalPreco)}
+                            </span>
                         </div>
 
                         {/* Cartão parcelado */}
@@ -237,19 +289,20 @@ export default function PagamentoForm({ onVoltar, onProximo, alunoId }: Pagament
                                 <Label htmlFor="cartao" className="font-medium cursor-pointer">Cartão parcelado</Label>
                             </div>
                             <div className="ml-6 text-sm text-gray-600">
-                                <p>{precos.parcelas} x R$ {precos.valorParcela.toLocaleString('pt-BR')},00</p>
-                                <p className="text-green-600 font-medium">{precos.parcelas} x R$ {precos.valorParcela.toLocaleString('pt-BR')},00 sem juros</p>
+                                <p>{totalParcelas}x R$ {formatarMoeda(valorParcela)}</p>
+                                <p className="text-green-600 font-medium">
+                                    {totalParcelas}x R$ {formatarMoeda(valorParcela)} sem juros
+                                </p>
                             </div>
                         </div>
                     </RadioGroup>
                 </div>
 
-                {/* Dados do cartão (só aparece se selecionar cartão) */}
+                {/* Dados do cartão */}
                 {formaPagamento === "cartao" && (
                     <div className="space-y-4 border-t pt-4">
                         <h3 className="font-medium text-gray-700">Dados do cartão</h3>
                         
-                        {/* Número do cartão */}
                         <div className="space-y-2">
                             <Label htmlFor="numero">Número do cartão</Label>
                             <Input
@@ -264,7 +317,6 @@ export default function PagamentoForm({ onVoltar, onProximo, alunoId }: Pagament
                             />
                         </div>
 
-                        {/* Validade e CVC */}
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="validade">Validade (MM/AA)</Label>
@@ -292,7 +344,6 @@ export default function PagamentoForm({ onVoltar, onProximo, alunoId }: Pagament
                             </div>
                         </div>
 
-                        {/* Nome no cartão */}
                         <div className="space-y-2">
                             <Label htmlFor="nome">Nome impresso no cartão</Label>
                             <Input
@@ -305,7 +356,6 @@ export default function PagamentoForm({ onVoltar, onProximo, alunoId }: Pagament
                             />
                         </div>
 
-                        {/* Endereço */}
                         <div className="space-y-2">
                             <Label htmlFor="endereco">Endereço para faturamento</Label>
                             <Input
@@ -318,7 +368,6 @@ export default function PagamentoForm({ onVoltar, onProximo, alunoId }: Pagament
                             />
                         </div>
 
-                        {/* Cartão recorrente */}
                         <div className="flex items-center space-x-2">
                             <Checkbox 
                                 id="recorrente" 
@@ -341,12 +390,16 @@ export default function PagamentoForm({ onVoltar, onProximo, alunoId }: Pagament
                     <div className="flex justify-between items-center">
                         <span className="font-medium text-gray-700">Total:</span>
                         <span className="text-2xl font-bold text-gray-900">
-                            R$ {precos.total.toLocaleString('pt-BR')},00
+                            R$ {formatarMoeda(totalPreco)}
                         </span>
                     </div>
+                    {totalParcelas > 1 && (
+                        <p className="text-sm text-gray-500 mt-1">
+                            em até {totalParcelas}x de R$ {formatarMoeda(valorParcela)} sem juros
+                        </p>
+                    )}
                 </div>
 
-                {/* Informação adicional */}
                 <p className="text-sm text-gray-500 italic">
                     Após escolher a opção de pagamento, clique em Gerar Pedido.
                 </p>
@@ -365,7 +418,7 @@ export default function PagamentoForm({ onVoltar, onProximo, alunoId }: Pagament
                     <Button
                         type="button"
                         onClick={handleSubmit}
-                        disabled={loading}
+                        disabled={loading || itens.length === 0}
                         className="flex-1 py-6 bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:bg-gray-400"
                     >
                         {loading ? 'Processando...' : 'Gerar Pedido'}
