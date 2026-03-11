@@ -23,7 +23,7 @@ interface CarrinhoContextType {
     totalItens: number;
     totalPreco: number;
     totalParcelas: number;
-    valorParcelaTotal: number; // valor total POR PARCELA (soma das parcelas de todos os itens)
+    valorParcelaTotal: number; // valor POR PARCELA (total / parcelas)
 }
 
 const CarrinhoContext = createContext<CarrinhoContextType | undefined>(undefined);
@@ -95,51 +95,46 @@ export function CarrinhoProvider({ children }: { children: React.ReactNode }) {
         setItens([]);
     }, []);
 
-    // Calcular totais usando useMemo para evitar recálculos desnecessários
+    // Calcular totais de forma SIMPLES e CORRETA
     const totais = useMemo(() => {
+        // Total de itens (soma das quantidades)
         const totalItens = itens.reduce((acc, item) => acc + item.quantidade, 0);
         
+        // Preço total (soma de preço × quantidade)
         const totalPreco = itens.reduce(
             (acc, item) => acc + item.preco * item.quantidade,
             0
         );
         
-        // CORRIGIDO: Pega o MAIOR número de parcelas entre os itens
-        const totalParcelas = Math.max(...itens.map(item => item.parcelas), 0);
+        // Número de parcelas (maior entre os itens)
+        const totalParcelas = itens.length > 0 
+            ? Math.max(...itens.map(item => item.parcelas)) 
+            : 0;
         
-        // CORRIGIDO: Calcula o valor total POR PARCELA
-        // Para cada item: (valor da parcela * quantidade) mas só considera se o item tiver o número máximo de parcelas
-        const valorParcelaTotal = itens.reduce((acc, item) => {
-            // Se o item tem o mesmo número de parcelas que o totalParcelas, soma
-            // Se tem menos, significa que já está pago em menos vezes, então não entra no cálculo
-            if (item.parcelas === totalParcelas) {
-                return acc + (item.valorParcela * item.quantidade);
-            }
-            return acc;
-        }, 0);
+        // Valor por parcela (total ÷ parcelas) - SIMPLES!
+        const valorParcelaTotal = totalParcelas > 0 
+            ? totalPreco / totalParcelas 
+            : 0;
 
-        // CORRIGIDO: Versão alternativa - calcula baseado no preço total
-        const valorParcelaTotalAlternativo = totalParcelas > 0 ? totalPreco / totalParcelas : 0;
-
-        console.log('🧮 Cálculo de parcelas:', {
+        console.log('🧮 Carrinho - Resumo:', {
+            itens: itens.map(i => ({
+                produto: i.titulo,
+                qtd: i.quantidade,
+                precoUnit: i.preco,
+                subtotal: i.preco * i.quantidade,
+                parcelasItem: i.parcelas
+            })),
+            totalItens,
             totalPreco,
             totalParcelas,
-            valorParcelaTotal,
-            valorParcelaTotalAlternativo,
-            itens: itens.map(i => ({
-                nome: i.titulo,
-                parcelas: i.parcelas,
-                valorParcela: i.valorParcela,
-                quantidade: i.quantidade,
-                totalItem: i.preco * i.quantidade
-            }))
+            valorParcelaTotal: Number(valorParcelaTotal.toFixed(2))
         });
 
         return {
             totalItens,
             totalPreco,
             totalParcelas,
-            valorParcelaTotal: valorParcelaTotalAlternativo // Usando a alternativa que é mais precisa
+            valorParcelaTotal
         };
     }, [itens]);
 

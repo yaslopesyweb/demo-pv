@@ -8,16 +8,24 @@ import Link from "next/link";
 import { useCarrinho } from "@/components/carrinho/carrinho-context";
 
 interface CursoCardProps {
-  id: string; // ← ADICIONADO
+  id: string;
   titulo: string;
   descricao: string;
   inicio: string;
   colecao: string;
   badges: string[];
   cor: string;
-  preco: number; // ← ADICIONADO
-  parcelas: number; // ← ADICIONADO
+  preco: number;
+  parcelas: number;
 }
+
+// Função auxiliar para formatar valores monetários
+const formatarMoeda = (valor: number): string => {
+  return valor.toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+};
 
 export function CursoCard({ 
   id,
@@ -27,14 +35,16 @@ export function CursoCard({
   colecao, 
   badges, 
   cor,
-  preco, // ← NOVO
-  parcelas // ← NOVO
+  preco,
+  parcelas
 }: CursoCardProps) {
   const { adicionarItem } = useCarrinho();
-  const valorParcela = preco / parcelas;
+  
+  // 🔥 CORREÇÃO AQUI: Arredondar o valor da parcela para 2 casas decimais
+  const valorParcela = Math.round((preco / parcelas) * 100) / 100;
 
   const handleComprar = (e: React.MouseEvent) => {
-    e.preventDefault(); // Previne navegação
+    e.preventDefault();
     e.stopPropagation();
     
     adicionarItem({
@@ -43,11 +53,11 @@ export function CursoCard({
       descricao,
       preco,
       parcelas,
+      // Passar o valor já arredondado
       valorParcela,
       cor
     });
     
-    // Feedback visual opcional
     const button = e.currentTarget;
     button.classList.add('scale-95', 'opacity-80');
     setTimeout(() => {
@@ -138,23 +148,22 @@ export function CursoCard({
           </div>
         </div>
 
-        {/* Preço - NOVO */}
+        {/* Preço - CORRIGIDO: Usando formatarMoeda */}
         <div className="pt-2 border-t border-gray-100">
           <p className="text-xs text-gray-500">a partir de</p>
           <div className="flex items-baseline gap-1">
             <span className="text-2xl font-bold" style={{ color: cor }}>
-              R$ {preco.toLocaleString('pt-BR')},00
+              R$ {formatarMoeda(preco)}
             </span>
             <span className="text-xs text-gray-500">à vista</span>
           </div>
           <p className="text-xs text-gray-500">
-            ou {parcelas}x de R$ {valorParcela.toLocaleString('pt-BR')},00
+            ou {parcelas}x de R$ {formatarMoeda(valorParcela)}
           </p>
         </div>
       </CardContent>
 
       <CardFooter className="flex flex-col gap-2 pt-2">
-        {/* Botão Comprar - NOVO */}
         <Button 
           className="w-full text-white font-medium py-2 text-sm rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-2"
           style={{ 
@@ -168,7 +177,6 @@ export function CursoCard({
           COMPRAR
         </Button>
 
-        {/* Botão Matricular - Existente */}
         <Link href="/checkout" className="w-full">
           <Button 
             variant="outline"

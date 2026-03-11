@@ -6,7 +6,14 @@ import { useCarrinho } from "@/components/carrinho/carrinho-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Trash2, Minus, Plus, ArrowLeft } from "lucide-react";
-// import { Navbar } from "@/components/navbar"; ← REMOVIDO!
+
+// 🔥 FUNÇÃO AUXILIAR PARA FORMATAR MOEDA CORRETAMENTE
+const formatarMoeda = (valor: number): string => {
+    return valor.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+};
 
 export default function CarrinhoPage() {
     const router = useRouter();
@@ -26,7 +33,6 @@ export default function CarrinhoPage() {
 
     if (itens.length === 0) {
         return (
-            // <Navbar /> ← REMOVIDO! A navbar já vem do layout
             <div className="container mx-auto px-4 py-16 max-w-4xl">
                 <div className="text-center">
                     <h1 className="text-3xl font-bold mb-4">Seu carrinho está vazio</h1>
@@ -44,7 +50,6 @@ export default function CarrinhoPage() {
     }
 
     return (
-        // <Navbar /> ← REMOVIDO! A navbar já vem do layout
         <div className="container mx-auto px-4 py-8 max-w-6xl">
             {/* Cabeçalho */}
             <div className="flex items-center justify-between mb-8">
@@ -82,13 +87,13 @@ export default function CarrinhoPage() {
                                         </p>
                                         
                                         <div className="flex items-center justify-between mt-4">
-                                            {/* Preço */}
+                                            {/* 🔥 PREÇO CORRIGIDO */}
                                             <div>
                                                 <p className="text-xl font-bold">
-                                                    R$ {(item.preco * item.quantidade).toLocaleString('pt-BR')},00
+                                                    R$ {formatarMoeda(item.preco * item.quantidade)}
                                                 </p>
                                                 <p className="text-xs text-gray-500">
-                                                    {item.parcelas}x de R$ {item.valorParcela.toLocaleString('pt-BR')},00
+                                                    {item.parcelas}x de R$ {formatarMoeda(item.valorParcela)}
                                                 </p>
                                             </div>
                                             
@@ -140,9 +145,10 @@ export default function CarrinhoPage() {
                             <h2 className="text-xl font-bold mb-4">Resumo do Pedido</h2>
                             
                             <div className="space-y-3 mb-6">
+                                {/* 🔥 TODOS OS VALORES CORRIGIDOS */}
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">Subtotal:</span>
-                                    <span className="font-medium">R$ {totalPreco.toLocaleString('pt-BR')},00</span>
+                                    <span className="font-medium">R$ {formatarMoeda(totalPreco)}</span>
                                 </div>
                                 
                                 <div className="flex justify-between">
@@ -153,7 +159,7 @@ export default function CarrinhoPage() {
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">Valor das parcelas:</span>
                                     <span className="font-medium">
-                                        R$ {valorParcelaTotal.toLocaleString('pt-BR')},00
+                                        R$ {formatarMoeda(valorParcelaTotal)}
                                     </span>
                                 </div>
                                 
@@ -161,7 +167,7 @@ export default function CarrinhoPage() {
                                     <div className="flex justify-between font-bold text-lg">
                                         <span>Total:</span>
                                         <span className="text-blue-600">
-                                            R$ {totalPreco.toLocaleString('pt-BR')},00
+                                            R$ {formatarMoeda(totalPreco)}
                                         </span>
                                     </div>
                                 </div>
